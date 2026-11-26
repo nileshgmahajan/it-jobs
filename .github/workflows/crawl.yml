@@ -1,0 +1,26 @@
+name: crawl-jobs
+on:
+  schedule: [{cron: "0 * * * *"}]
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  crawl:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - run: pip install requests
+      - run: python crawler/build_companies.py
+      - run: python crawler/crawl.py
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          ALERT_KEYWORDS: ${{ vars.ALERT_KEYWORDS }}
+      - run: |
+          git config user.name "jobwatch-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add data
+          git diff --cached --quiet || (git commit -m "update jobs" && git push)
