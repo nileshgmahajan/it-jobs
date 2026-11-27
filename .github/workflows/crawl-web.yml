@@ -1,20 +1,22 @@
-name: crawl-jobs
+name: crawl-web
 on:
-  schedule: [{cron: "0 * * * *"}]
+  schedule: [{cron: "30 */6 * * *"}]
   workflow_dispatch:
 permissions:
   contents: write
+concurrency:
+  group: crawl-web
+  cancel-in-progress: false
 jobs:
-  crawl:
+  web:
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    timeout-minutes: 170
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: {python-version: "3.12"}
-      - run: pip install requests
-      - run: python crawler/build_companies.py
-      - run: python crawler/crawl.py
+      - run: pip install requests playwright && playwright install --with-deps chromium
+      - run: python crawler/browser_crawl.py
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
@@ -22,5 +24,5 @@ jobs:
       - run: |
           git config user.name "jobwatch-bot"
           git config user.email "bot@users.noreply.github.com"
-          git add data
-          git diff --cached --quiet || (git commit -m "update jobs" && git push)
+          git add data/jobs_web.json
+          git diff --cached --quiet || (git commit -m "update web jobs" && git pull --rebase && git push)
