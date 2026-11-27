@@ -15,8 +15,9 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:Hind,system-ui,s
 header{padding:32px 0 14px}
 h1{font-family:Sora,system-ui,sans-serif;font-size:clamp(26px,5vw,38px);line-height:1.15;margin:0 0 6px;letter-spacing:-.02em}
 header p{margin:0;color:var(--mute)}
-.bar{display:grid;grid-template-columns:2fr 1fr 1fr;gap:10px;margin:16px 0 10px}
+.bar{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:10px;margin:16px 0 10px}
 input,select{font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:10px 12px;width:100%}
+input[type=checkbox]{width:auto;margin-right:8px}
 input:focus,select:focus,button:focus-visible,a:focus-visible{outline:2px solid var(--brand);outline-offset:1px}
 .tabs{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
 .tab{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:7px 16px;font:inherit;cursor:pointer}
@@ -24,12 +25,20 @@ input:focus,select:focus,button:focus-visible,a:focus-visible{outline:2px solid 
 .views .tab{border-radius:8px;font-weight:600}
 .status{font-size:14px;color:var(--mute);margin:6px 0}.demo{background:var(--tU);color:var(--ink);border-radius:8px;padding:8px 12px;font-size:14px;margin:8px 0}
 .count{color:var(--mute);margin:10px 0}
+.stats{display:flex;gap:10px;flex-wrap:wrap;margin:6px 0 12px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 16px;min-width:110px}
+.stat b{display:block;font-family:Sora,sans-serif;font-size:22px;color:var(--new)}
+.stat span{font-size:13.5px;color:var(--mute)}
+.opt{display:flex;align-items:center;margin:4px 0 10px;color:var(--mute);font-size:14.5px}
+.day{font-family:Sora,sans-serif;font-size:15px;margin:20px 0 8px;color:var(--mute)}
 .row{display:grid;grid-template-columns:44px 1fr auto;gap:14px;align-items:start;background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--c);border-radius:10px;padding:14px 16px;margin-bottom:10px}
 .Product{--c:var(--Product);--t:var(--tP)}.Service{--c:var(--Service);--t:var(--tS)}.Startup{--c:var(--Startup);--t:var(--tU)}
 .logo{width:44px;height:44px;border-radius:10px;display:grid;place-items:center;font-family:Sora,sans-serif;font-weight:700;color:var(--c);background:var(--t)}
 .row h3{margin:0;font-family:Sora,sans-serif;font-size:16.5px}
 .meta{color:var(--mute);font-size:14.5px;margin:2px 0}.type{font-weight:600;color:var(--c)}
-.new{font-size:12.5px;font-weight:600;color:var(--new);background:var(--new-t);border-radius:6px;padding:1px 8px;margin-left:8px;vertical-align:middle}
+.new,.lv{font-size:12.5px;font-weight:600;border-radius:6px;padding:1px 8px;margin-left:8px;vertical-align:middle}
+.new,.lv.fresher{color:var(--new);background:var(--new-t)}
+.lv{color:var(--mute);background:var(--bg);border:1px solid var(--line)}.lv.fresher{border-color:transparent}
 .btn{background:var(--brand);color:var(--brand-ink);border:0;border-radius:8px;padding:8px 16px;font:inherit;font-weight:600;cursor:pointer;text-decoration:none;white-space:nowrap;display:inline-block}
 .btn.alt{background:transparent;color:var(--brand);border:1px solid var(--line)}
 .links{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
@@ -37,17 +46,18 @@ input:focus,select:focus,button:focus-visible,a:focus-visible{outline:2px solid 
 .more{display:block;margin:14px auto}
 .chip{display:inline-flex;gap:6px;align-items:center;background:var(--new-t);color:var(--new);border-radius:999px;padding:3px 12px;font-size:14px;margin:0 8px 8px 0}
 .chip button{border:0;background:none;color:inherit;cursor:pointer;font-size:16px}
-@media (max-width:640px){.bar{grid-template-columns:1fr}.row{grid-template-columns:40px 1fr}.row .links{grid-column:2}}
+@media (max-width:640px){.bar{grid-template-columns:1fr}.row{grid-template-columns:40px 1fr}.row .links,.row>.btn{grid-column:2;justify-self:start}}
 </style>
 </head>
 <body>
 <div class="wrap">
 <header>
 <h1>IT Openings Portal</h1>
-<p>Product, Service/MNC ani Startup companies chya naveen jobs ek thikani.</p>
+<p>Product, Service/MNC ani Startup companies chya naveen jobs, Freshers sathi vegla vibhag.</p>
 <div class="bar">
 <input id="q" type="search" placeholder="Search role, skill, company or city" aria-label="Search">
 <select id="loc" aria-label="City"><option value="">All cities</option></select>
+<select id="lv" aria-label="Experience level"><option value="">All experience levels</option><option value="fresher">Fresher (0–1 yr)</option><option value="junior">Junior (1–3 yrs)</option><option value="mid">Mid (3–6 yrs)</option><option value="senior">Senior (6+ yrs)</option><option value="unknown">Not specified</option></select>
 <select id="when" aria-label="Posted"><option value="">Any date</option><option value="1">Today</option><option value="2">Last 2 days</option><option value="7">Last 7 days</option></select>
 </div>
 <div class="tabs views" id="views"></div>
@@ -58,61 +68,75 @@ input:focus,select:focus,button:focus-visible,a:focus-visible{outline:2px solid 
 <main><div id="chips"></div><div class="count" id="count" aria-live="polite"></div><div id="list"></div></main>
 </div>
 <script>
-var $=function(i){return document.getElementById(i)},DAY=864e5,TL={Product:"Product",Service:"Service / MNC",Startup:"Startup"};
-var S={jobs:[],cos:[],type:"All",view:"jobs",cid:"",shown:50,updated:"",demo:false};
+var $=function(i){return document.getElementById(i)},DAY=864e5,TL={Product:"Product",Service:"Service / MNC",Startup:"Startup"},LV={fresher:"Fresher",junior:"Junior",mid:"Mid",senior:"Senior",unknown:"Not specified"};
+var S={jobs:[],cos:[],type:"All",view:"jobs",cid:"",shown:50,updated:"",demo:false,web:{},ats:{},incj:false};
 var DEMO_C=[["Sample Product Co","Product"],["Sample Service Ltd","Service"],["Sample Startup","Startup"]].map(function(x,i){return{id:"d"+i,name:x[0],type:x[1],site:"https://example.com",careers:"https://example.com/careers"}});
-var now=Date.now(),DEMO_J=[["Backend Engineer","Pune",0,0],["Cloud Engineer","Mumbai",1,1],["Full Stack Developer","Bengaluru",2,30]].map(function(x,i){var t=new Date(now-x[3]*3600e3).toISOString();return{uid:"d"+i,cid:"d"+x[2],company:DEMO_C[x[2]].name,type:DEMO_C[x[2]].type,title:x[0],location:x[1]+", India",url:"https://example.com/careers",posted:"",first_seen:t,baseline:false}});
+var now=Date.now(),DEMO_J=[["Software Engineer Intern","Pune",0,0,"fresher","0-1 yrs"],["Graduate Engineer Trainee","Mumbai",1,1,"fresher",""],["Associate Software Engineer","Pune",1,5,"junior",""],["Senior Cloud Engineer","Bengaluru",2,30,"senior","6+ yrs"]].map(function(x,i){var t=new Date(now-x[3]*3600e3).toISOString();return{uid:"d"+i,cid:"d"+x[2],company:DEMO_C[x[2]].name,type:DEMO_C[x[2]].type,title:x[0],location:x[1]+", India",url:"https://example.com/careers",posted:"",first_seen:t,baseline:false,level:x[4],exp:x[5]}});
 function el(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e}
 function when(j){return Date.parse(j.posted||j.first_seen)||0}
+function lvl(j){return j.level||"unknown"}
 function dstart(ms){var d=new Date(ms);return new Date(d.getFullYear(),d.getMonth(),d.getDate()).getTime()}
 function age(ms){return Math.round((dstart(Date.now())-dstart(ms))/DAY)}
 function rel(ms){var h=Math.floor((Date.now()-ms)/36e5);if(h<1)return"just now";if(h<24)return h+" h ago";var n=age(ms);return n===1?"yesterday":n+" days ago"}
 function fmt(ms){return new Date(ms).toLocaleString("en-IN",{day:"numeric",month:"short",year:"numeric",hour:"numeric",minute:"2-digit",hour12:true,timeZone:"Asia/Kolkata"})+" IST"}
+function fday(ms){return new Date(ms).toLocaleDateString("en-IN",{weekday:"short",day:"numeric",month:"short",year:"numeric",timeZone:"Asia/Kolkata"})}
 function stamp(j){var ms=when(j);return(j.posted?"Posted ":"Detected ")+fmt(ms)+" · "+rel(ms)}
 function isNew(j){return !j.baseline&&Date.now()-Date.parse(j.first_seen)<DAY}
 function safe(u){return typeof u==="string"&&u.indexOf("https://")===0?u:""}
 function fj(u){return fetch(u+"?t="+Date.now()).then(function(r){if(!r.ok)throw 0;return r.json()})}
 function link(cls,txt,u){var a=el("a",cls,txt);a.href=safe(u)||"#";a.target="_blank";a.rel="noopener noreferrer";return a}
+function fToday(){return S.jobs.filter(function(j){return lvl(j)==="fresher"&&age(when(j))<=0}).length}
 
-function views(){var b=$("views");b.textContent="";[["jobs","Jobs"],["cos","Companies ("+S.cos.length+")"]].forEach(function(v){var t=el("button","tab",v[1]);t.setAttribute("aria-pressed",String(S.view===v[0]));t.onclick=function(){S.view=v[0];S.shown=50;views();render()};b.appendChild(t)})}
+function views(){var b=$("views");b.textContent="";var f=fToday();
+[["jobs","Jobs"],["fresh","Freshers"+(f?" · "+f+" today":"")],["cos","Companies ("+S.cos.length+")"]].forEach(function(v){var t=el("button","tab",v[1]);t.setAttribute("aria-pressed",String(S.view===v[0]));t.onclick=function(){S.view=v[0];S.shown=50;views();render()};b.appendChild(t)});
+$("lv").style.display=$("when").style.display=S.view==="jobs"?"":"none"}
 function tabs(){var b=$("tabs");b.textContent="";["All","Product","Service","Startup"].forEach(function(t){var x=el("button","tab",t==="All"?"All":TL[t]);x.setAttribute("aria-pressed",String(S.type===t));x.onclick=function(){S.type=t;S.shown=50;tabs();render()};b.appendChild(x)})}
 function cities(){var n={};S.jobs.forEach(function(j){var c=(j.location||"").split(",")[0].trim();if(c)n[c]=(n[c]||0)+1});var cur=$("loc").value,s=$("loc");s.textContent="";var o=el("option",null,"All cities");o.value="";s.appendChild(o);Object.keys(n).sort(function(a,b){return n[b]-n[a]}).slice(0,40).sort().forEach(function(c){var x=el("option",null,c);x.value=c;s.appendChild(x)});s.value=cur}
+function cstat(c){var a=S.ats[c.id];if(a&&a.ats)return"Live job feed";var w=S.web[c.id];if(!w)return"Careers link only";if(w.status==="jobs")return"Jobs read from careers page";if(w.status==="watch")return"Page monitored"+(w.changed?" · changed "+fmt(Date.parse(w.changed)):"");return"Page not readable yet"}
 function counts(){var m={};S.jobs.forEach(function(j){m[j.cid]=(m[j.cid]||0)+1});return m}
 
-function render(){
-S.view==="jobs"?renderJobs():renderCos()}
+function base(j){var q=$("q").value.toLowerCase().trim(),l=$("loc").value;return(S.type==="All"||j.type===S.type)&&(!S.cid||j.cid===S.cid)&&(!l||(j.location||"").split(",")[0].trim()===l)&&(!q||(j.title+" "+j.company+" "+j.location).toLowerCase().indexOf(q)>-1)}
+function cidChip(){if(!S.cid)return;var c=S.cos.filter(function(x){return x.id===S.cid})[0],p=el("span","chip","Company: "+(c?c.name:S.cid)+" "),x=el("button",null,"×");x.setAttribute("aria-label","Clear company filter");x.onclick=function(){S.cid="";render()};p.appendChild(x);$("chips").appendChild(p)}
+function jobCard(j){var a=el("article","row "+j.type);a.appendChild(el("div","logo",(j.company||"?").charAt(0).toUpperCase()));
+var m=el("div"),h=el("h3",null,j.title);if(isNew(j))h.appendChild(el("span","new","New"));
+var L=lvl(j);if(L!=="unknown")h.appendChild(el("span","lv "+L,LV[L]+(j.exp?" · "+j.exp:"")));m.appendChild(h);
+var mt=el("div","meta");mt.appendChild(document.createTextNode(j.company+" · "));mt.appendChild(el("span","type",TL[j.type]));mt.appendChild(document.createTextNode(" · "+(j.location||"Location not listed")));m.appendChild(mt);
+m.appendChild(el("div","meta",stamp(j)));a.appendChild(m);a.appendChild(link("btn","Apply",j.url));return a}
 function more(list,total){if(S.shown<total){var b=el("button","btn alt more","Show more ("+(total-S.shown)+" left)");b.onclick=function(){S.shown+=50;render()};list.appendChild(b)}}
-function renderJobs(){
-var q=$("q").value.toLowerCase().trim(),l=$("loc").value,w=+$("when").value||0;
-var r=S.jobs.filter(function(j){return(S.type==="All"||j.type===S.type)&&(!S.cid||j.cid===S.cid)&&(!l||(j.location||"").split(",")[0].trim()===l)&&(!w||age(when(j))<w)&&(!q||(j.title+" "+j.company+" "+j.location).toLowerCase().indexOf(q)>-1)});
-r.sort(function(a,b){return when(b)-when(a)});
-var ch=$("chips");ch.textContent="";if(S.cid){var c=S.cos.filter(function(x){return x.id===S.cid})[0],p=el("span","chip","Company: "+(c?c.name:S.cid)+" "),x=el("button",null,"×");x.setAttribute("aria-label","Clear company filter");x.onclick=function(){S.cid="";render()};p.appendChild(x);ch.appendChild(p)}
+
+function render(){$("chips").textContent="";S.view==="jobs"?renderJobs():S.view==="fresh"?renderFresh():renderCos()}
+function renderJobs(){cidChip();var f=$("lv").value,w=+$("when").value||0;
+var r=S.jobs.filter(function(j){return base(j)&&(!f||lvl(j)===f)&&(!w||age(when(j))<w)});r.sort(function(a,b){return when(b)-when(a)});
 $("count").textContent=r.length+" opening"+(r.length===1?"":"s")+" found";
 var list=$("list");list.textContent="";
 if(!r.length){list.appendChild(el("div","empty",S.jobs.length?"No openings match. Clear a filter or try another keyword.":"No jobs yet. The first crawler run fills this list."));return}
-r.slice(0,S.shown).forEach(function(j){var a=el("article","row "+j.type);a.appendChild(el("div","logo",(j.company||"?").charAt(0).toUpperCase()));
-var m=el("div"),h=el("h3",null,j.title);if(isNew(j))h.appendChild(el("span","new","New"));m.appendChild(h);
-var mt=el("div","meta");mt.appendChild(document.createTextNode(j.company+" · "));mt.appendChild(el("span","type",TL[j.type]));mt.appendChild(document.createTextNode(" · "+(j.location||"Location not listed")));m.appendChild(mt);
-m.appendChild(el("div","meta",stamp(j)));a.appendChild(m);a.appendChild(link("btn","Apply",j.url));list.appendChild(a)});
-more(list,r.length)}
-function renderCos(){
-$("chips").textContent="";var q=$("q").value.toLowerCase().trim(),cn=counts();
+r.slice(0,S.shown).forEach(function(j){list.appendChild(jobCard(j))});more(list,r.length)}
+function renderFresh(){cidChip();var ch=$("chips");
+var r=S.jobs.filter(function(j){var L=lvl(j);return base(j)&&(L==="fresher"||(S.incj&&L==="junior"))});r.sort(function(a,b){return when(b)-when(a)});
+var t=0,y=0,w=0;r.forEach(function(j){var n=age(when(j));if(n<=0)t++;if(n===1)y++;if(n<7)w++});
+var st=el("div","stats");[[t,"Today"],[y,"Yesterday"],[w,"Last 7 days"],[r.length,"All fresher jobs"]].forEach(function(x){var d=el("div","stat");d.appendChild(el("b",null,String(x[0])));d.appendChild(el("span",null,x[1]));st.appendChild(d)});ch.appendChild(st);
+var lb=el("label","opt"),cb=el("input");cb.type="checkbox";cb.checked=S.incj;cb.onchange=function(){S.incj=cb.checked;S.shown=50;render()};lb.appendChild(cb);lb.appendChild(document.createTextNode("Include junior roles (Associate, Engineer I, 1–3 yrs)"));ch.appendChild(lb);
+$("count").textContent=r.length+" fresher opening"+(r.length===1?"":"s");
+var list=$("list");list.textContent="";
+if(!r.length){list.appendChild(el("div","empty","No fresher jobs found yet. Level is read from the job title (Intern, Trainee, Graduate, Fresher…) and from the description where the company shares it."));return}
+var last="";r.slice(0,S.shown).forEach(function(j){var n=age(when(j)),g=n<=0?"Today":n===1?"Yesterday":fday(when(j));
+if(g!==last){var cnt=r.filter(function(x){var m=age(when(x));return(m<=0?"Today":m===1?"Yesterday":fday(when(x)))===g}).length;list.appendChild(el("h2","day",g+" · "+cnt+" job"+(cnt===1?"":"s")));last=g}
+list.appendChild(jobCard(j))});more(list,r.length)}
+function renderCos(){var q=$("q").value.toLowerCase().trim(),cn=counts();
 var r=S.cos.filter(function(c){return(S.type==="All"||c.type===S.type)&&(!q||c.name.toLowerCase().indexOf(q)>-1)});
 $("count").textContent=r.length+" compan"+(r.length===1?"y":"ies");
 var list=$("list");list.textContent="";if(!r.length){list.appendChild(el("div","empty","No companies match."));return}
 r.slice(0,S.shown).forEach(function(c){var a=el("article","row "+c.type);a.appendChild(el("div","logo",c.name.charAt(0).toUpperCase()));
-var m=el("div");m.appendChild(el("h3",null,c.name));var mt=el("div","meta");mt.appendChild(el("span","type",TL[c.type]));mt.appendChild(document.createTextNode(" · "+(cn[c.id]||0)+" open in your filter"));m.appendChild(mt);a.appendChild(m);
+var m=el("div");m.appendChild(el("h3",null,c.name));var mt=el("div","meta");mt.appendChild(el("span","type",TL[c.type]));mt.appendChild(document.createTextNode(" · "+(cn[c.id]||0)+" jobs · "+cstat(c)));m.appendChild(mt);a.appendChild(m);
 var L=el("div","links");if(cn[c.id]){var b=el("button","btn","View jobs");b.onclick=function(){S.cid=c.id;S.view="jobs";S.shown=50;views();render()};L.appendChild(b)}
-if(safe(c.careers||c.site))L.appendChild(link("btn alt","Careers page",c.careers||c.site));a.appendChild(L);list.appendChild(a)});
-more(list,r.length)}
+if(safe(c.careers||c.site))L.appendChild(link("btn alt","Careers page",c.careers||c.site));a.appendChild(L);list.appendChild(a)});more(list,r.length)}
 
-["q","loc","when"].forEach(function(i){$(i).oninput=function(){S.shown=50;render()};$(i).onchange=function(){S.shown=50;render()}});
-function status(){var s=S.demo?"":("Last checked "+(S.updated?Math.max(0,Math.round((Date.now()-Date.parse(S.updated))/36e5))+" h ago":"never")+" · "+S.jobs.length+" jobs · "+S.cos.length+" companies");$("status").textContent=s}
-function start(){
-views();tabs();
-Promise.all([fj("data/companies.json").catch(function(){return null}),fj("data/jobs.json").catch(function(){return null})]).then(function(r){
-if(!r[0]&&!r[1]){S.demo=true;S.cos=DEMO_C;S.jobs=DEMO_J;$("demo").appendChild(el("div","demo","Preview with sample data. After you set up the crawler (see README), real companies and jobs appear here automatically."));$("status").textContent="";}
-else{S.cos=r[0]||[];S.jobs=(r[1]&&r[1].jobs)||[];S.updated=(r[1]&&r[1].updated)||"";status()}
+["q","loc","lv","when"].forEach(function(i){$(i).oninput=function(){S.shown=50;render()};$(i).onchange=function(){S.shown=50;render()}});
+function status(){$("status").textContent=S.demo?"":("Last checked "+(S.updated?Math.max(0,Math.round((Date.now()-Date.parse(S.updated))/36e5))+" h ago":"never")+" · "+S.jobs.length+" jobs · "+S.cos.length+" companies")}
+function start(){views();tabs();
+Promise.all([fj("data/companies.json").catch(function(){return null}),fj("data/jobs.json").catch(function(){return null}),fj("data/jobs_web.json").catch(function(){return null}),fj("data/ats.json").catch(function(){return null})]).then(function(r){
+if(!r[0]&&!r[1]){S.demo=true;S.cos=DEMO_C;S.jobs=DEMO_J;$("demo").appendChild(el("div","demo","Preview with sample data. After you set up the crawler (see README), real companies and jobs appear here automatically."));$("status").textContent=""}
+else{S.cos=r[0]||[];S.jobs=((r[1]&&r[1].jobs)||[]).concat((r[2]&&r[2].jobs)||[]);S.web=(r[2]&&r[2].companies)||{};S.ats=r[3]||{};S.updated=(r[1]&&r[1].updated)||"";status()}
 views();cities();render()})}
 start();
 </script>
